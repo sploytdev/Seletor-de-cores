@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seletor de Cores & Gradiente</title>
+<style>
+:root{--bg:#f3f4fb;--card:rgba(255,255,255,.75);--text:#14161f;--muted:#6a7080;--line:rgba(20,22,31,.1);--field:rgba(20,22,31,.05);--accent:#5865f2;--accent2:#eb459e;--stage:#1e1f22;--blob:.35;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0f14;--card:rgba(30,32,42,.7);--text:#eef0f6;--muted:#9aa1b3;--line:rgba(255,255,255,.09);--field:rgba(255,255,255,.06);--stage:#15161b;--blob:.28}}
+:root[data-theme="dark"]{--bg:#0e0f14;--card:rgba(30,32,42,.7);--text:#eef0f6;--muted:#9aa1b3;--line:rgba(255,255,255,.09);--field:rgba(255,255,255,.06);--stage:#15161b;--blob:.28}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;position:relative;overflow-x:hidden}
+body::before,body::after{content:"";position:fixed;z-index:0;width:55vmax;height:55vmax;border-radius:50%;filter:blur(90px);opacity:var(--blob);pointer-events:none}
+body::before{background:var(--accent);top:-25vmax;left:-15vmax}
+body::after{background:var(--accent2);bottom:-28vmax;right:-18vmax}
+main{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:36px 16px 56px;display:grid;gap:18px}
+header{text-align:center;margin-bottom:6px}
+h1{font-size:clamp(1.7rem,5vw,2.4rem);font-weight:800;letter-spacing:-.02em;margin:0;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.sub{margin:8px 0 0;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 30px rgba(0,0,0,.08)}
+h2{font-size:1.05rem;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+h2 i{font-style:normal;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+label{font-size:.78rem;color:var(--muted);display:block;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+input[type=text]{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--text);font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,101,242,.25)}
+input[type=file]{font:inherit;color:var(--muted);max-width:100%}
+input[type=file]::file-selector-button{margin-right:12px;padding:10px 16px;border:0;border-radius:999px;background:linear-gradient(135deg,var(--accent),#7983f5);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+input[type=color]{width:48px;height:46px;border:1px solid var(--line);border-radius:12px;padding:3px;background:var(--field);cursor:pointer;flex:none}
+button{padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--field);color:var(--text);font:inherit;font-weight:600;font-size:.88rem;cursor:pointer;transition:transform .12s,border-color .15s,background .15s}
+button:hover{border-color:var(--accent);transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+.swatch{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);flex:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.15)}
+.hexrow{display:flex;gap:10px;align-items:center}
+.hexrow>div{flex:1}
+.canvaswrap{overflow:auto;border:2px dashed var(--line);border-radius:16px;padding:10px;text-align:center;margin-top:14px;background:var(--field)}
+canvas{max-width:100%;cursor:crosshair;touch-action:none;border-radius:10px;display:block;margin:0 auto}
+#hint{color:var(--muted);padding:28px 10px}
+.picked{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+code{background:var(--field);border:1px solid var(--line);padding:6px 12px;border-radius:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92rem}
+.hist{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hist button{width:30px;height:30px;padding:0;border-radius:50%}
+.gradbar{height:44px;border-radius:14px;border:1px solid var(--line);margin-top:16px}
+.hint2{color:var(--muted);font-size:.85rem;flex:1;min-width:180px}
+.stage{background:var(--stage);border-radius:16px;padding:34px 16px;text-align:center;overflow:hidden;margin-top:14px}
+.name{font-size:clamp(2.2rem,10vw,4rem);font-weight:800;letter-spacing:-.02em;margin:0;word-break:break-word;background-clip:text;-webkit-background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.out{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.toast{position:fixed;z-index:5;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(10px);background:var(--accent);color:#fff;padding:10px 18px;border-radius:999px;font-size:.88rem;font-weight:600;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Seletor de Cores &amp; Gradiente</h1>
+    <p class="sub">Pegue o HEX de uma imagem, misture duas cores e veja seu nome com o gradiente.</p>
+  </header>
+
+  <section class="card">
+    <h2><i>1</i>Pegar cor de uma imagem</h2>
+    <div class="row">
+      <input type="file" id="file" accept="image/*">
+      <button id="eyedrop" style="display:none">Conta-gotas na tela</button>
+    </div>
+    <div class="canvaswrap">
+      <canvas id="cv" width="10" height="10"></canvas>
+      <div id="hint">Envie uma imagem e clique nela para pegar a cor.</div>
+    </div>
+    <div class="picked">
+      <div class="swatch" id="pSw" style="background:#5865f2"></div>
+      <code id="pHex">#5865F2</code>
+      <button data-copy="pHex">Copiar</button>
+      <button id="to1">Usar como cor 1</button>
+      <button id="to2">Usar como cor 2</button>
+    </div>
+    <div class="hist" id="hist" aria-label="Cores recentes"></div>
+  </section>
+
+  <section class="card">
+    <h2><i>2</i>Gradiente</h2>
+    <div class="grid2">
+      <div>
+        <label>Cor 1</label>
+        <div class="hexrow">
+          <input type="color" id="c1" value="#5865f2">
+          <div><input type="text" id="h1" value="#5865F2" maxlength="7" spellcheck="false"></div>
+        </div>
+      </div>
+      <div>
+        <label>Cor 2</label>
+        <div class="hexrow">
+          <input type="color" id="c2" value="#eb459e">
+          <div><input type="text" id="h2" value="#EB459E" maxlength="7" spellcheck="false"></div>
+        </div>
+      </div>
+    </div>
+    <div class="gradbar" id="bar"></div>
+    <div class="row" style="margin-top:14px">
+      <span class="hint2">Cor 1 à esquerda → Cor 2 à direita (padrão do Discord)</span>
+      <button id="swap">⇄ Inverter</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><i>3</i>Seu nome com gradiente</h2>
+    <label for="txt">Palavra / nome</label>
+    <input type="text" id="txt" value="Seu Nome" maxlength="40">
+    <div class="stage"><p class="name" id="name">Seu Nome</p></div>
+    <div class="out">
+      <strong>HEX:</strong> <code id="oHex"></code> <button data-copy="oHex">Copiar</button>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var cv=$('cv'),ctx=cv.getContext('2d',{willReadFrequently:true});
+  var cur='#5865F2',hist=[];
+
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove('show')},1400)}
+  function hex(r,g,b){return '#'+[r,g,b].map(function(v){return v.toString(16).padStart(2,'0')}).join('').toUpperCase()}
+  function valid(h){return /^#[0-9a-fA-F]{6}$/.test(h)}
+  function copy(txt){
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('Copiado: '+txt)},fallback)}else fallback();
+    function fallback(){var a=document.createElement('textarea');a.value=txt;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('Copiado: '+txt)}catch(e){toast('Não deu pra copiar')}a.remove()}
+  }
+
+  function setPicked(h){
+    cur=h.toUpperCase();$('pSw').style.background=cur;$('pHex').textContent=cur;
+    if(hist.indexOf(cur)<0){hist.unshift(cur);hist=hist.slice(0,14);renderHist()}
+  }
+  function renderHist(){
+    var el=$('hist');el.innerHTML='';
+    hist.forEach(function(h){var b=document.createElement('button');b.style.background=h;b.title=h;b.onclick=function(){setPicked(h);copy(h)};el.appendChild(b)});
+  }
+
+  $('file').addEventListener('change',function(e){
+    var f=e.target.files[0];if(!f)return;
+    var img=new Image(),url=URL.createObjectURL(f);
+    img.onload=function(){
+      var max=800,s=Math.min(1,max/Math.max(img.width,img.height));
+      cv.width=Math.round(img.width*s);cv.height=Math.round(img.height*s);
+      ctx.drawImage(img,0,0,cv.width,cv.height);
+      $('hint').style.display='none';URL.revokeObjectURL(url);
+    };
+    img.src=url;
+  });
+  function pick(ev){
+    if($('hint').style.display!=='none')return;
+    var r=cv.getBoundingClientRect();
+    var x=Math.floor((ev.clientX-r.left)*cv.width/r.width),y=Math.floor((ev.clientY-r.top)*cv.height/r.height);
+    if(x<0||y<0||x>=cv.width||y>=cv.height)return;
+    var d=ctx.getImageData(x,y,1,1).data;
+    setPicked(hex(d[0],d[1],d[2]));
+  }
+  cv.addEventListener('pointerdown',function(e){cv.setPointerCapture(e.pointerId);pick(e)});
+  cv.addEventListener('pointermove',function(e){if(e.buttons)pick(e)});
+
+  if('EyeDropper' in window){
+    $('eyedrop').style.display='';
+    $('eyedrop').onclick=function(){new EyeDropper().open().then(function(r){setPicked(r.sRGBHex)}).catch(function(){})};
+  }
+
+  document.querySelectorAll('[data-copy]').forEach(function(b){b.onclick=function(){copy($(b.dataset.copy).textContent)}});
+
+  function sync(which,h){
+    if(!valid(h))return;
+    $('c'+which).value=h.toLowerCase();$('h'+which).value=h.toUpperCase();update();
+  }
+  $('to1').onclick=function(){sync(1,cur);toast('Cor 1 definida')};
+  $('to2').onclick=function(){sync(2,cur);toast('Cor 2 definida')};
+  [1,2].forEach(function(n){
+    $('c'+n).addEventListener('input',function(){$('h'+n).value=this.value.toUpperCase();update()});
+    $('h'+n).addEventListener('input',function(){
+      var v=this.value.trim();if(v[0]!=='#')v='#'+v;
+      if(valid(v)){$('c'+n).value=v.toLowerCase();update()}
+    });
+  });
+  $('txt').addEventListener('input',update);
+  $('swap').onclick=function(){var a=$('h1').value,b=$('h2').value;sync(1,b);sync(2,a)};
+
+  function update(){
+    var a=$('c1').value.toUpperCase(),b=$('c2').value.toUpperCase();
+    var g='linear-gradient(90deg, '+a+', '+b+')';
+    $('bar').style.background=g;
+    var n=$('name');n.style.backgroundImage=g;n.textContent=$('txt').value||'Seu Nome';
+    $('oHex').textContent=a+' → '+b;
+  }
+  setPicked('#5865F2');update();
+})();
+</script>
+</body>
+</html>
